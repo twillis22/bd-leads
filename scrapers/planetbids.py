@@ -42,15 +42,50 @@ class PortalConfig:
     region: str = "NorCal"  # NorCal / SoCal / Other
 
 
-# Verified working in probes. Expand from Tyler's spreadsheet (column with
-# planetbids URLs — extract the numeric ID between /portal/ and /bo).
-# Note: agencies migrate platforms occasionally. Portal IDs that 404 or show
-# "not a valid PlanetBids agency portal" are auto-skipped at fetch time.
+# Full Bay Area + SoCal PlanetBids portal list, extracted from Tyler's
+# Lead_Lookup_sites.xlsx spreadsheet.
+#
+# Note: two portal IDs are shared between agencies and have been collapsed
+# to one entry each:
+#   - 15331: CSU Maritime + CSU Chancellor's Office (same system portal)
+#   - 68007: SamTrans + Caltrain + San Mateo County Transit District
+#
+# Portals that have migrated off PlanetBids (e.g., Palo Alto → OpenGov) are
+# detected and skipped automatically at fetch time, so stale entries fail
+# soft without blowing up the run.
 PORTALS: List[PortalConfig] = [
-    PortalConfig("75302", "City of Sunnyvale",          "NorCal"),
-    PortalConfig("29905", "City of Pomona",             "SoCal"),
-    # Tyler's spreadsheet has ~32 more PlanetBids portals — add them here.
-    # Format: PortalConfig("<id>", "<Agency Name>", "<NorCal|SoCal|Other>"),
+    PortalConfig("14590", "City of Richmond",                                        "NorCal"),
+    PortalConfig("14599", "County of Stanislaus",                                    "NorCal"),
+    PortalConfig("15331", "CSU Maritime / Chancellor's Office",                      "NorCal"),
+    PortalConfig("15739", "Sacramento State",                                        "NorCal"),
+    PortalConfig("16128", "CSU San Marcos",                                          "SoCal"),
+    PortalConfig("17950", "City of San Diego",                                       "SoCal"),
+    PortalConfig("18057", "Ohlone CCD",                                              "NorCal"),
+    PortalConfig("20507", "San Mateo County CCD",                                    "NorCal"),
+    PortalConfig("24809", "Foothill DeAnza CCD",                                     "NorCal"),
+    PortalConfig("25796", "San Diego State University (SDSU)",                       "SoCal"),
+    PortalConfig("26036", "CSU Monterey Bay",                                        "NorCal"),
+    PortalConfig("27970", "City of Carlsbad",                                        "SoCal"),
+    PortalConfig("39476", "West Valley Mission CCD",                                 "NorCal"),
+    PortalConfig("39481", "City of San Marcos",                                      "SoCal"),
+    PortalConfig("43669", "Los Rios CCD",                                            "NorCal"),
+    PortalConfig("43764", "San Diego Unified School District (SDUSD)",               "SoCal"),
+    PortalConfig("46142", "City of Elk Grove",                                       "NorCal"),
+    PortalConfig("47167", "MiraCosta CCD",                                           "SoCal"),
+    PortalConfig("47527", "City of Mountain View",                                   "NorCal"),
+    PortalConfig("47827", "UC College of the Law San Francisco",                     "NorCal"),
+    PortalConfig("53850", "Monterey Peninsula CCD",                                  "NorCal"),
+    PortalConfig("57150", "Palomar CCD",                                             "SoCal"),
+    PortalConfig("57760", "San Diego CCD (SDCCD)",                                   "SoCal"),
+    PortalConfig("60397", "The Pasha Group",                                         "Other"),
+    PortalConfig("62973", "Oceanside USD",                                           "SoCal"),
+    PortalConfig("64254", "City of Walnut Creek Public Works Projects",              "NorCal"),
+    PortalConfig("66280", "Santa Clara Housing Authority",                           "NorCal"),
+    PortalConfig("67229", "Contra Costa CCD",                                        "NorCal"),
+    PortalConfig("68007", "SamTrans / Caltrain / SMCTD",                             "NorCal"),
+    PortalConfig("71685", "City of Los Altos",                                       "NorCal"),
+    PortalConfig("73033", "City of Seaside",                                         "NorCal"),
+    PortalConfig("75302", "City of Sunnyvale",                                       "NorCal"),
 ]
 
 
