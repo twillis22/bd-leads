@@ -14,6 +14,14 @@ from typing import Iterable, List
 
 from scrapers.base import Lead
 from scrapers.planetbids import PlanetBidsScraper
+from scrapers.llnl import LLNLScraper
+from scrapers.carlsbad_usd import CarlsbadUSDScraper
+from scrapers.city_of_berkeley import CityOfBerkeleyScraper
+from scrapers.uc_berkeley import UCBerkeleyScraper
+from scrapers.uc_davis_health import UCDavisHealthScraper
+from scrapers.mid_peninsula_water import MidPeninsulaWaterScraper
+from scrapers.poway_usd import PowayUSDScraper
+from scrapers.slac import SLACScraper
 from filters import filter_construction
 from seen_tracker import SeenTracker
 
@@ -35,16 +43,38 @@ CLOSED_BIDS_TO_KEEP_PER_SOURCE: int = 3
 def collect_all_leads() -> List[Lead]:
     """
     Run every registered scraper and concatenate their leads.
-    As more scrapers come online (custom municipal sites in step 2),
-    add them here.
+    Per-scraper failures are caught in BaseScraper subclasses (they return [])
+    so one bad source can never kill the whole run.
     """
     leads: List[Lead] = []
 
     print("Running PlanetBids scraper...")
     leads.extend(PlanetBidsScraper.fetch_all())
 
-    # Step 2 (next): add the 8-10 custom municipal scrapers here.
-    # Example: leads.extend(JudicialCouncilScraper().fetch())
+    # Custom municipal scrapers (Tier-1 from the Pass 2 probe report).
+    # Each is HTTP-based, no Playwright. New ones get added here.
+    custom_scrapers = [
+        LLNLScraper(),
+        CarlsbadUSDScraper(),
+        CityOfBerkeleyScraper(),
+        UCBerkeleyScraper(),
+        UCDavisHealthScraper(),
+        MidPeninsulaWaterScraper(),
+        PowayUSDScraper(),
+        SLACScraper(),
+    ]
+    print(f"\nRunning {len(custom_scrapers)} custom scrapers...")
+    for s in custom_scrapers:
+        try:
+            batch = s.fetch()
+            print(f"  ✓ {s.name}: {len(batch)} leads")
+            leads.extend(batch)
+        except Exception as e:
+            print(f"  ✗ {s.name}: FAILED — {e}")
+
+    # v2 candidates (need Playwright or further investigation):
+    #   SFPUC, Judicial Council, City of Gilroy, City of Orinda,
+    #   County of Placer, County of Sonoma, San Marcos USD, SF DPW
 
     return leads
 
