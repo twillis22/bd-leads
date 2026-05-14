@@ -1,0 +1,54 @@
+name: Update BD Leads
+
+on:
+  # Daily at 13:00 UTC = 6:00 AM PT (winter) / 7:00 AM PT (summer) — Ty has
+  # fresh leads on his desk when he sits down.
+  schedule:
+    - cron: "0 13 * * *"
+  # Allow manual runs from the Actions tab
+  workflow_dispatch:
+
+permissions:
+  contents: write  # needed to commit docs/index.html and data/seen.json
+
+concurrency:
+  group: bd-leads-update
+  cancel-in-progress: false
+
+jobs:
+  update:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: "pip"
+
+      - name: Install Python dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+
+      - name: Install Playwright browser (Chromium only)
+        run: python -m playwright install --with-deps chromium
+
+      - name: Run lead refresh
+        run: python main.py
+
+      - name: Commit and push updates
+        run: |
+          git config user.name  "bd-leads-bot"
+          git config user.email "bd-leads-bot@users.noreply.github.com"
+          git add docs/index.html data/seen.json
+          if git diff --cached --quiet; then
+            echo "No changes to commit."
+          else
+            git commit -m "Daily refresh: $(date -u +'%Y-%m-%d %H:%M UTC')"
+            git push
+          fi
